@@ -46,6 +46,7 @@ Sub timer1_Tick
 	offset=DateTime.Now-previousDate
 	offset=offset/1000 'seconds
 	Log(offset)
+	removeEth0Gateway
 	If offset>320 Then
 		Log("suspending")
 		Dim sh As Shell
@@ -68,7 +69,6 @@ Sub runCorenlp
 		Dim sh As Shell
 		sh.Initialize("sh","ssh",Array As String("xulihang@172.16.1.55",Chr(34)&"sh","/home/xulihang/corenlp/runNohup.sh"&Chr(34)))
 		sh.Run(5000)
-		removeEth0Gateway
 	End If
 	job.Release
 End Sub
