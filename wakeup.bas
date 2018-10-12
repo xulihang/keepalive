@@ -18,6 +18,7 @@ Sub Handle(req As ServletRequest, resp As ServletResponse)
 	psw=req.GetParameter("psw")
 	If psw="alive" Then
 		Main.previousDate=DateTime.Now
+		Main.timer1.Enabled=True
 		Dim sh As Shell
 		sh.Initialize("sh","sh",Array As String("/home/pi/wakeonlan.sh"))
 		sh.Run(5000)

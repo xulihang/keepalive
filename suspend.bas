@@ -18,8 +18,9 @@ Sub Handle(req As ServletRequest, resp As ServletResponse)
 	psw=req.GetParameter("psw")
 	If psw="alive" Then
 		Dim sh As Shell
-		sh.Initialize("sh","ssh",Array As String("root@192.168.1.55","pm-suspend"))
+		sh.Initialize("sh","ssh",Array As String("root@172.16.1.55","pm-suspend"))
 		sh.Run(5000)
+		Main.timer1.Enabled=False
 		resp.Write("suspended")
 	Else
 		resp.Write("wrong password")

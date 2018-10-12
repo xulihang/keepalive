@@ -19,7 +19,7 @@ Version=6.51
 #End Region
 
 Sub Process_Globals
-	Private timer1 As Timer
+	Public timer1 As Timer
 	Private srvr As Server
 	Public previousDate As Long
 End Sub
@@ -46,11 +46,12 @@ Sub timer1_Tick
 	offset=DateTime.Now-previousDate
 	offset=offset/1000 'seconds
 	Log(offset)
-	If offset>300 Then
+	If offset>320 Then
 		Log("suspending")
 		Dim sh As Shell
-		sh.Initialize("sh","ssh",Array As String("root@192.168.1.55","pm-suspend"))
+		sh.Initialize("sh","ssh",Array As String("root@172.16.1.55","pm-suspend"))
 		sh.Run(5000)
+		timer1.Enabled=False
 	Else
 		runCorenlp
 	End If
@@ -65,8 +66,15 @@ Sub runCorenlp
 	Else
 		Log(job.ErrorMessage)
 		Dim sh As Shell
-		sh.Initialize("sh","ssh",Array As String("xulihang@192.168.1.55",Chr(34)&"sh","/home/xulihang/corenlp/runNohup.sh"&Chr(34)))
+		sh.Initialize("sh","ssh",Array As String("xulihang@172.16.1.55",Chr(34)&"sh","/home/xulihang/corenlp/runNohup.sh"&Chr(34)))
 		sh.Run(5000)
+		removeEth0Gateway
 	End If
 	job.Release
+End Sub
+
+Sub removeEth0Gateway
+	Dim sh As Shell
+	sh.Initialize("sh","ssh",Array As String("root@172.16.1.55",Chr(34)&"route","del","default","gw","172.16.1.1"&Chr(34)))
+	sh.Run(5000)
 End Sub
