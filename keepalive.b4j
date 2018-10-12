@@ -1,0 +1,72 @@
+﻿AppType=StandardJava
+Build1=Default,b4j.example
+Group=Default Group
+Library1=jcore
+Library2=jserver
+Library3=jshell
+Library4=jokhttputils2_nonui
+Module1=wakeup
+Module2=suspend
+NumberOfFiles=0
+NumberOfLibraries=4
+NumberOfModules=2
+Version=6.51
+@EndOfDesignText@
+'Non-UI application (console / server application)
+#Region Project Attributes 
+	#CommandLineArgs:
+	#MergeLibraries: True 
+#End Region
+
+Sub Process_Globals
+	Private timer1 As Timer
+	Private srvr As Server
+	Public previousDate As Long
+End Sub
+
+Sub AppStart (Args() As String)
+	srvr.Initialize("srvr")
+	srvr.AddHandler("/wakeup","wakeup",False)
+	srvr.AddHandler("/suspend","suspend",False)
+	srvr.Port=51038
+	srvr.Start
+	previousDate=DateTime.Now
+	timer1.Initialize("timer1",10000)
+	timer1.Enabled=True
+	StartMessageLoop
+End Sub
+
+'Return true to allow the default exceptions handler to handle the uncaught exception.
+Sub Application_Error (Error As Exception, StackTrace As String) As Boolean
+	Return True
+End Sub
+
+Sub timer1_Tick
+	Dim offset As Long
+	offset=DateTime.Now-previousDate
+	offset=offset/1000 'seconds
+	Log(offset)
+	If offset>300 Then
+		Log("suspending")
+		Dim sh As Shell
+		sh.Initialize("sh","ssh",Array As String("root@192.168.1.55","pm-suspend"))
+		sh.Run(5000)
+	Else
+		runCorenlp
+	End If
+End Sub
+
+Sub runCorenlp
+	Dim job As HttpJob
+    job.Initialize("job",Me)
+	job.Download("http://192.168.191.111:9000")
+	Wait For (job) JobDone(job As HttpJob)
+	If job.Success Then
+	Else
+		Log(job.ErrorMessage)
+		Dim sh As Shell
+		sh.Initialize("sh","ssh",Array As String("xulihang@192.168.1.55",Chr(34)&"sh","/home/xulihang/corenlp/runNohup.sh"&Chr(34)))
+		sh.Run(5000)
+	End If
+	job.Release
+End Sub
